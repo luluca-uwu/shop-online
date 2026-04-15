@@ -2,54 +2,107 @@
 <html>
 
 <head>
-    <title>Shop</title>
+    <meta charset="UTF-8">
+    <title>Shop Online</title>
+
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <h2>Login</h2>
-    <input id="username" placeholder="username">
-    <input id="password" type="password" placeholder="password">
-    <button onclick="login()">Login</button>
+    <!-- CSS riêng -->
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 
-<body class="bg-light">
+<body>
 
-    <div class="container py-4">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-dark bg-dark px-3">
+        <span class="navbar-brand">🛒 Shop Online</span>
+    
+        <div>
+            <span id="user-info" class="text-white me-3"></span>
+            <button id="logout-btn" class="btn btn-sm btn-warning d-none">Logout</button>
+            <span id="cart-count" class="badge bg-danger">0</span>
 
-        <h1 class="text-center mb-4">🛒 Shop Online</h1>
+        </div>
+    </nav>
 
-        <!-- FORM -->
+    <div class="container mt-4">
+
+        <!-- LOGIN -->
         <div class="card p-3 mb-4">
-            <h4>Thêm sản phẩm</h4>
+            <h5>🔐 Đăng nhập</h5>
             <div class="row">
                 <div class="col">
-                    <input type="text" id="name" class="form-control" placeholder="Tên sản phẩm">
+                    <input id="username" class="form-control" placeholder="Username">
                 </div>
                 <div class="col">
-                    <input type="number" id="price" class="form-control" placeholder="Giá">
+                    <input id="password" type="password" class="form-control" placeholder="Password">
                 </div>
                 <div class="col">
-                    <input type="text" id="image" class="form-control" placeholder="Link ảnh">
-                </div>
-                <div class="col">
-                    <button class="btn btn-primary w-100" onclick="addProduct()">Thêm</button>
+                    <button class="btn btn-secondary w-100" onclick="register()">Register</button>
+                    <button class="btn btn-primary w-100" onclick="login()">Login</button>
                 </div>
             </div>
         </div>
 
-        <!-- DANH SÁCH -->
-        <div class="row" id="product-list"></div>
-
-        <!-- GIỎ HÀNG -->
-        <div class="card mt-4 p-3">
-            <h4>🛒 Giỏ hàng</h4>
-            <div id="cart"></div>
-            <button class="btn btn-success mt-3" onclick="checkout()">Thanh toán</button>
+        <!-- ADD PRODUCT -->
+        <div class="card p-3 mb-4" id="add-product-box">
+            <h5>➕ Thêm sản phẩm</h5>
+        
+            <div class="row">
+                <div class="col">
+                    <input id="name" class="form-control" placeholder="Tên sản phẩm">
+                </div>
+        
+                <div class="col">
+                    <input id="price" class="form-control" placeholder="Giá">
+                </div>
+        
+                <div class="col">
+                    <input type="file" id="image" class="form-control">
+                </div>
+        
+                <div class="col">
+                    <button class="btn btn-success w-100" onclick="addProduct()">Thêm</button>
+                </div>
+            </div>
         </div>
+
+<!-- SEARCH + FILTER -->
+        <div class="card p-3 mb-4">
+            <div class="row">
+        
+                <!-- SEARCH -->
+                <div class="col-md-6">
+                    <input id="search" class="form-control" placeholder="🔍 Tìm sản phẩm..." oninput="applyFilter()">
+                </div>
+        
+                <!-- FILTER PRICE -->
+                <div class="col-md-3">
+                    <select id="filterPrice" class="form-select" onchange="applyFilter()">
+                        <option value="">-- Lọc giá --</option>
+                        <option value="low">Dưới 100</option>
+                        <option value="mid">100 - 500</option>
+                        <option value="high">Trên 500</option>
+                    </select>
+                </div>
+        
+            </div>
+        </div>
+
+        <!-- PRODUCT LIST -->
+        <h4>🛍️ Sản phẩm</h4>
+        <div id="product-list" class="row"></div>
+
+        <hr>
+
+        <!-- CART -->
+        <h4>🛒 Giỏ hàng</h4>
+        <div id="cart" class="mb-3"></div>
+        <button class="btn btn-danger" onclick="checkout()">Thanh toán</button>
 
     </div>
 
-    <script src="script.js"></script>
-    <script type="module" src="./js/main.js"></script>
-</body>
+<script type="module" src="./js/main.js" defer></script></body>
 
 </html>

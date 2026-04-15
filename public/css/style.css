@@ -1,0 +1,19 @@
+.product-card {
+    transition: 0.3s;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.product-card:hover {
+    transform: scale(1.05);
+}
+
+.product-img {
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+button {
+    border-radius: 8px !important;
+}

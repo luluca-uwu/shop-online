@@ -1,18 +1,39 @@
+// ================= IMPORT =================
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const db = require('./db');
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const multer = require('multer');
+const path = require('path');
 
+// ================= INIT =================
 const app = express();
+const PORT = 3000;
+const SECRET = "mysecretkey";
+
+// ================= CONFIG UPLOAD =================
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/uploads/');
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = Date.now() + path.extname(file.originalname);
+        cb(null, uniqueName);
+    }
+});
+
+const upload = multer({ storage });
+
+// ================= MIDDLEWARE =================
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// REGISTER, tạo hash password trước khi lưu vào database
-const bcrypt = require('bcrypt');
+console.log("🔥 Server đang chạy...");
 
+// ================= REGISTER =================
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
 
@@ -23,16 +44,12 @@ app.post('/register', async (req, res) => {
         [username, hashedPassword],
         (err) => {
             if (err) return res.send(err);
-            res.send('Register success');
+            res.send({ message: 'Register success' });
         }
     );
 });
 
-// LOGIN, tạo token
-const jwt = require('jsonwebtoken');
-
-const SECRET = "mysecretkey";
-
+// ================= LOGIN =================
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
@@ -65,7 +82,7 @@ app.post('/login', (req, res) => {
     );
 });
 
-// AUTH, kiểm tra token trước khi tạo order
+// ================= AUTH =================
 function authMiddleware(req, res, next) {
     const token = req.headers['authorization'];
 
@@ -78,58 +95,37 @@ function authMiddleware(req, res, next) {
         next();
     });
 }
-// UI helpers
-function saveToken(token) {
-    localStorage.setItem("token", token);
-}
 
-function getToken() {
-    return localStorage.getItem("token");
-}
-
-async function login() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-
-    const res = await fetch("http://localhost:3000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-    });
-
-    const data = await res.json();
-
-    if (data.token) {
-        saveToken(data.token);
-        alert("Login thành công!");
-    } else {
-        alert("Login thất bại");
-    }
-}
-
-// PRODUCTS
+// ================= PRODUCTS =================
 app.get('/products', (req, res) => {
     db.query('SELECT * FROM products', (err, data) => {
+        if (err) return res.send(err);
         res.send(data);
     });
 });
 
-app.post('/products', (req, res) => {
-    const { name, price, image } = req.body;
+// 👉 ADD PRODUCT (UPLOAD ẢNH)
+app.post('/products', upload.single('image'), (req, res) => {
+    const { name, price } = req.body;
+    const image = req.file ? '/uploads/' + req.file.filename : '';
+
     db.query(
         'INSERT INTO products (name, price, image) VALUES (?, ?, ?)',
         [name, price, image],
-        () => res.send('OK')
+        (err) => {
+            if (err) return res.send(err);
+            res.send({ message: 'Add product success' });
+        }
     );
 });
 
-app.delete('/products/:id', (req, res) => {
+app.delete('/products/:id', authMiddleware, (req, res) => {
     db.query('DELETE FROM products WHERE id=?', [req.params.id], () => {
         res.send('OK');
     });
 });
 
-// ORDER, tạo order mới với user_id lấy từ token
+// ================= ORDERS =================
 app.post('/orders', authMiddleware, (req, res) => {
     const user_id = req.user.id;
     const { cart } = req.body;
@@ -154,9 +150,12 @@ app.post('/orders', authMiddleware, (req, res) => {
                 );
             });
 
-            res.send('Order success');
+            res.send({ message: 'Order success' });
         }
     );
 });
 
-app.listen(3000, () => console.log("Server chạy 3000"));
+// ================= START =================
+app.listen(PORT, () => {
+    console.log(`🚀 Server chạy tại http://localhost:${PORT}`);
+});

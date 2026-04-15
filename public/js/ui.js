@@ -1,45 +1,88 @@
-import { getCart } from "./cart.js";
+  import { getCart } from "./cart.js";
 
+  // =======================
+  // RENDER PRODUCTS
+  // =======================
 export function renderProducts(products) {
-    let html = "";
+  const token = localStorage.getItem("token");
 
-    products.forEach(p => {
-        html += `
+  let html = "";
+
+  products.forEach(p => {
+    html += `
       <div class="col-md-3">
-        <div class="card mb-4">
-          <img src="${p.image}" class="card-img-top" style="height:200px;object-fit:cover">
-          <div class="card-body">
-            <h5>${p.name}</h5>
-            <p>${p.price} VND</p>
-            <button onclick="window.addToCartUI(${p.id}, '${p.name}', ${p.price})">🛒</button>
-            <button onclick="window.deleteProductUI(${p.id})">Xóa</button>
-          </div>
+        <div class="card product-card mb-4 p-3 shadow-sm">
+
+          <img src="http://localhost:3000${p.image}" class="img-fluid mb-2">
+
+          <h5>${p.name}</h5>
+          <p class="text-danger fw-bold">${p.price} VND</p>
+
+          <button class="btn btn-primary w-100 mb-2"
+            onclick="addToCartUI(${p.id}, '${p.name}', ${p.price})">
+            🛒 Thêm vào giỏ
+          </button>
+
+          ${token && token !== "null" && token !== "undefined"
+        ? `<button class="btn btn-danger w-100"
+                  onclick="deleteProductUI(${p.id})">
+                  Xóa
+                </button>`
+        : ""
+      }
+
         </div>
       </div>
     `;
-    });
+  });
 
-    document.getElementById("product-list").innerHTML = html;
+  document.getElementById("product-list").innerHTML = html;
 }
 
-export function renderCart() {
+  // =======================
+  // RENDER CART
+  // =======================
+  export function renderCart() {
     const cart = getCart();
 
     let html = "";
     let total = 0;
 
     cart.forEach(item => {
-        total += item.price * item.quantity;
+      total += item.price * item.quantity;
 
-        html += `
-      <div>
-        ${item.name} (${item.quantity})
-        <button onclick="window.removeFromCartUI(${item.id})">Xóa</button>
-      </div>
-    `;
+      html += `
+          <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+
+              <div>
+                  <b>${item.name}</b><br>
+                  ${item.price} x ${item.quantity}
+              </div>
+
+              <button class="btn btn-sm btn-danger"
+                  onclick="removeFromCartUI(${item.id})">
+                  X
+              </button>
+
+          </div>
+          `;
     });
 
-    html += `<h3>Tổng: ${total}</h3>`;
+    html += `
+          <h5 class="mt-3 text-end">
+              Tổng: <span class="text-danger">${total} VND</span>
+          </h5>
+      `;
 
     document.getElementById("cart").innerHTML = html;
-}
+
+    // =======================
+    // BADGE SỐ LƯỢNG
+    // =======================
+    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+    const badge = document.getElementById("cart-count");
+    if (badge) {
+      badge.innerText = count;
+    }
+  }
